@@ -1,4 +1,10 @@
-import { OnDutyType, getOnDutyType, GroupMember, NewData } from "./type";
+import {
+  OnDutyType,
+  getOnDutyType,
+  GroupMember,
+  NewData,
+  AgainOndutyDay,
+} from "./type";
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 import utc from "dayjs/plugin/utc";
@@ -124,10 +130,9 @@ export default class Onduty {
       const daykey = getOnDutyType(day.format("ddd"));
       const ruleIds1 = this.ruleNoOnDutyIds(daykey);
       const ruleIds2 = this.ruleNoContinuous(day);
-  
+
       let ids = ruleIds1.filter((id) => ruleIds2.indexOf(id) !== -1);
       if (ids.length <= 0) {
-        console.log('ids.length <= 0');
         ids = ruleIds2;
       }
 
@@ -138,7 +143,7 @@ export default class Onduty {
       }
 
       if (ids.length <= 0) {
-        console.log('error');
+        console.log("error");
       }
 
       const idRandom = this.getRandom(ids);
@@ -259,5 +264,77 @@ export default class Onduty {
    */
   public getNewData(): Array<NewData> {
     return this.newData;
+  }
+
+  /**
+   * 補抽值班
+   * @param day 
+   * @returns 
+   */
+  public againOnduty(day: AgainOndutyDay[]): Array<NewData> {
+    const data: NewData[] = [];
+    day.forEach((d) => {
+        const dkey = d.isMaintain ? OnDutyType.maintain: getOnDutyType(dayjs(d.onduty_date).format("ddd"));
+        const ruleIds1 = this.ruleNoOnDutyIds(dkey);
+        const ruleIds2 = this.ruleNoContinuous(dayjs(d.onduty_date));
+
+        let ids = ruleIds1.filter((id) => ruleIds2.indexOf(id) !== -1);
+        if (ids.length <= 0) {
+          ids = ruleIds2;
+        }
+
+        const newIds = ids.filter(
+          (id) => !this.ruleNoRepeatedly(dayjs(d.onduty_date), id)
+        );
+        if (newIds.length > 0) {
+          ids = newIds;
+        }
+        const idRandom = this.getRandom(ids);
+        data.push({
+          id: idRandom.id,
+          onduty_date: dayjs(d.onduty_date).format("YYYY-MM-DD"),
+          isMaintain: d.isMaintain,
+          maintain_afternoon: undefined,
+        });
+
+        this.groupMembers.forEach((v, k) => {
+          if (v.id === idRandom.id) {
+            this.groupMembers[k][dkey].push(dayjs(d.onduty_date).format("YYYY-MM-DD"));
+          }
+        });
+    });
+
+    data.forEach(d => {
+      if(d.isMaintain) {
+        let ids = this.groupMembers.map((d) => d.id);
+        const d2Id = this.findGroupMembers(dayjs(d.onduty_date));
+  
+        ids = ids.filter((v) => d2Id !== v);
+  
+        for (let i = 1; i <= 3; i++) {
+          const addID = this.findGroupMembers(dayjs(d.onduty_date).add(i, "day"));
+          const subtractID = this.findGroupMembers(
+            dayjs(d.onduty_date).subtract(i, "day")
+          );
+  
+          ids = ids.filter((v) => addID !== v);
+          ids = ids.filter((v) => subtractID !== v);
+        }
+  
+        if (ids.length === 0) {
+          ids = this.groupMembers.map((d) => d.id);
+        }
+        const idRandom = this.getRandom(ids);
+  
+        data.find((d2, i) => {
+          if (d.onduty_date === d2.onduty_date) {
+            data[i].maintain_afternoon = idRandom.id;
+          }
+          return d.onduty_date === d2.onduty_date;
+        });
+      }
+    })
+
+    return data;
   }
 }

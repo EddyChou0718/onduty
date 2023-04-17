@@ -9,16 +9,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@koa/cors": "^3.3.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "dayjs": "^1.10.7",
     "koa": "^2.13.1",
+    "koa-bodyparser": "^4.4.0",
     "koa-router": "^10.1.1",
     "mariadb": "^2.5.4",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/koa": "^2.13.4",
+    "@types/koa-bodyparser": "^4.3.10",
     "@types/koa-router": "^7.4.4",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",

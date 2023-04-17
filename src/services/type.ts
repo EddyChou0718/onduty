@@ -9,6 +9,12 @@ enum OnDutyType {
   maintain = "maintain",
 }
 
+enum statisticalType {
+  all = "all",
+  true = 1,
+  false = 0,
+}
+
 interface GroupMember {
   id: number;
   name: string;
@@ -21,6 +27,16 @@ interface GroupMember {
   Sun: Array<string>;
   maintain: Array<string>;
   maintain_afternoon: Array<string>;
+}
+
+interface DeleteMember {
+  onduty_date: Date;
+  isMaintain: number;
+}
+
+interface AgainOndutyDay {
+  onduty_date: string;
+  isMaintain: boolean;
 }
 
 interface MemberOnDutyDateObj {
@@ -66,6 +82,10 @@ function getOnDutyType(str: string): OnDutyType {
       v = OnDutyType.Sun;
       break;
     }
+    case "maintain": {
+      v = OnDutyType.maintain;
+      break;
+    }
     default: {
       break;
     }
@@ -86,5 +106,8 @@ export {
   OnDutyType,
   NewData,
   getOnDutyType,
-  MemberOnDutyDate
+  MemberOnDutyDate,
+  statisticalType,
+  DeleteMember,
+  AgainOndutyDay,
 };
