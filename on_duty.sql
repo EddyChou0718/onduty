@@ -37,14 +37,11 @@ CREATE TABLE `group_member` (
 --
 
 INSERT INTO `group_member` (`id`, `name`) VALUES
-(8, 'alex10'),
-(2, 'eddy'),
-(6, 'hong-yin'),
-(4, 'ray'),
-(7, 'winnie'),
-(5, 'youli'),
-(3, '小楓'),
-(1, '花媽');
+(1, 'user1');
+(2, 'user2'),
+(3, 'user3'),
+(4, 'user4'),
+(5, 'user5'),
 
 -- --------------------------------------------------------
 
